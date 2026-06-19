@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>SNS適性診断 - by Castee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #6366F1;
+      --primary-light: #818CF8;
+      --primary-dark: #4F46E5;
+      --primary-bg: #EEF2FF;
+      --white: #FFFFFF;
+      --text-dark: #1F2937;
+      --text-gray: #6B7280;
+      --text-light: #9CA3AF;
+      --border: #E5E7EB;
+      --radius: 14px;
+      --shadow-sm: 0 2px 12px rgba(99,102,241,0.08);
+      --shadow-md: 0 4px 24px rgba(99,102,241,0.14);
+      --bg: #F5F3FF;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: linear-gradient(160deg, #F3F0FF 0%, #F9F8FF 50%, #FAFAFA 100%);
+      min-height: 100dvh;
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    #app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(99,102,241,0.08);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: 19px;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 15px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-gray);
+      text-align: right;
+      line-height: 1.5;
+    }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      padding: 0 16px 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Screen animations ── */
+    .screen { animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Start Screen ── */
+    .start-screen { padding-top: 28px; text-align: center; }
+
+    .start-emoji {
+      font-size: 60px;
+      line-height: 1;
+      margin-bottom: 22px;
+      display: block;
+      animation: float 3.5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-10px) rotate(2deg); }
+    }
+
+    .start-title {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.4;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+    .start-title .grad {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .start-sub {
+      font-size: 13.5px;
+      color: var(--text-gray);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .input-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 22px 18px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .input-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .input-hint {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .text-input {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--text-dark);
+      outline: none;
+      background: #FAFAFA;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .text-input:focus { border-color: var(--primary); background: white; }
+    .text-input::placeholder { color: var(--text-light); }
+
+    .btn-start {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      color: white;
+      box-shadow: 0 4px 18px rgba(99,102,241,0.38);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-start:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+
+    /* ── Quiz Screen ── */
+    .quiz-screen { padding-top: 22px; }
+
+    .quiz-intro {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-gray);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .quiz-intro span { color: var(--primary); }
+
+    .question-block { margin-bottom: 24px; }
+
+    .question-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 18px 16px;
+      margin-bottom: 10px;
+      transition: box-shadow 0.3s;
+    }
+    .question-card.flash {
+      animation: flashCard 0.7s ease;
+    }
+    @keyframes flashCard {
+      0%, 100% { box-shadow: var(--shadow-sm); }
+      25%, 65% { box-shadow: 0 0 0 3px rgba(99,102,241,0.35), var(--shadow-sm); }
+    }
+
+    .q-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-bg);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      min-width: 36px;
+      transition: background 0.25s, color 0.25s;
+    }
+    .q-badge.answered {
+      background: var(--primary);
+      color: white;
+    }
+
+    .q-text {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.45;
+      color: var(--text-dark);
+    }
+
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .answer-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 14px 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+      user-select: none;
+    }
+    .answer-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-bg);
+      box-shadow: 0 0 0 1px var(--primary), var(--shadow-sm);
+    }
+
+    .check-circle {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s;
+    }
+    .answer-card.selected .check-circle {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .check-circle::after {
+      content: '';
+      display: none;
+      width: 5px;
+      height: 8px;
+      border: 2px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+    }
+    .answer-card.selected .check-circle::after { display: block; }
+
+    .answer-icon { font-size: 30px; line-height: 1; margin-bottom: 8px; }
+    .answer-title { font-size: 13.5px; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; }
+    .answer-desc  { font-size: 12px; color: var(--text-gray); line-height: 1.5; }
+
+    /* sticky bar spacer */
+    .quiz-spacer { height: 110px; }
+
+    /* ── Sticky CTA Bar ── */
+    .sticky-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+      background: linear-gradient(to top, rgba(245,243,255,1) 55%, rgba(245,243,255,0) 100%);
+      z-index: 150;
+    }
+
+    .q-dots {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .q-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.25s, transform 0.25s;
+    }
+    .q-dot.done {
+      background: var(--primary);
+      transform: scale(1.25);
+    }
+
+    .btn-result {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      letter-spacing: 0.3px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-result.active {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      color: white;
+      box-shadow: 0 4px 18px rgba(99,102,241,0.38);
+    }
+    .btn-result.active:active { transform: scale(0.98); }
+    .btn-result.inactive {
+      background: #E5E7EB;
+      color: #9CA3AF;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    /* ── Loading Screen ── */
+    .loading-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+    }
+    .loading-content { text-align: center; }
+    .loading-emoji {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 20px;
+      animation: loadPulse 0.9s ease-in-out infinite;
+    }
+    @keyframes loadPulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.18); }
+    }
+    .loading-text { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .loading-sub  { font-size: 12px; color: var(--text-light); margin-bottom: 24px; }
+    .loading-track {
+      width: 180px;
+      height: 6px;
+      background: rgba(99,102,241,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .loading-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary-light));
+      border-radius: 3px;
+      animation: loadFill 1.3s ease-out forwards;
+    }
+    @keyframes loadFill { from { width: 0%; } to { width: 100%; } }
+
+    /* ── Result Screen ── */
+    .result-screen { padding-top: 22px; }
+
+    .result-hero {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 28px 20px 24px;
+      text-align: center;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary-light));
+    }
+
+    .result-nick { font-size: 13px; color: var(--text-gray); margin-bottom: 6px; }
+    .result-nick span { font-weight: 700; color: var(--text-dark); }
+    .result-emoji { font-size: 54px; line-height: 1; margin-bottom: 12px; display: block; }
+    .result-label { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px; letter-spacing: 0.5px; }
+    .result-type {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .result-catchcopy { font-size: 12px; font-weight: 500; color: var(--text-gray); margin-bottom: 14px; }
+    .result-divider { height: 1px; background: var(--border); margin: 14px 0; }
+    .result-desc { font-size: 13.5px; color: var(--text-gray); line-height: 1.75; text-align: left; }
+
+    .result-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 18px;
+      margin-bottom: 10px;
+    }
+    .section-title { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+    .role-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .role-tag {
+      background: var(--primary-bg);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .castee-note { font-size: 13px; color: var(--text-gray); line-height: 1.7; }
+    .castee-note strong { color: var(--primary); }
+
+    .result-actions { padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      font-size: 15.5px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      color: white;
+      box-shadow: 0 4px 18px rgba(99,102,241,0.38);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-ghost {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      background: transparent;
+      color: var(--text-gray);
+      transition: color 0.15s;
+    }
+    .btn-ghost:active { color: var(--primary); }
+
+    /* ── Staff Modal ── */
+    .staff-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeOverlay 0.25s ease;
+    }
+    @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+    .staff-modal {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 28px 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+      animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .staff-modal-emoji { font-size: 60px; display: block; margin-bottom: 16px; }
+    .staff-modal-type {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .staff-modal-label { font-size: 13px; color: var(--text-gray); margin-bottom: 28px; }
+    .staff-modal-note  { font-size: 13px; color: var(--text-light); margin-bottom: 20px; line-height: 1.6; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 22px 20px;
+      border-top: 1px solid rgba(99,102,241,0.07);
+    }
+    .footer-text { font-size: 11.5px; color: var(--text-light); margin-bottom: 12px; line-height: 1.6; }
+    .footer-icons { display: flex; justify-content: center; gap: 18px; }
+    .footer-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--primary);
+      transition: background 0.15s;
+    }
+    .footer-icon:hover { background: #DDD6FE; }
+
+    /* ── Confetti ── */
+    .confetti-piece {
+      position: fixed;
+      pointer-events: none;
+      animation: confettiFall linear forwards;
+      z-index: 999;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark">C</div>
+      Castee
+    </div>
+    <div class="header-subtitle">SNS適性診断<br>by Castee</div>
+  </header>
+
+  <main class="main" id="main"></main>
+
+  <!-- Sticky CTA (quiz時のみ表示) -->
+  <div id="sticky-bar" class="sticky-bar" style="display:none">
+    <div class="q-dots">
+      <span class="q-dot" id="dot-0"></span>
+      <span class="q-dot" id="dot-1"></span>
+      <span class="q-dot" id="dot-2"></span>
+      <span class="q-dot" id="dot-3"></span>
+    </div>
+    <button class="btn-result inactive" id="result-btn" onclick="goToResult()">
+      診断結果を見る
+    </button>
+  </div>
+
+  <footer class="footer" id="footer">
+    <p class="footer-text">Casteeで、あなたに合うクリエイター体験を見つけよう！</p>
+    <div class="footer-icons">
+      <div class="footer-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+        </svg>
+      </div>
+      <div class="footer-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </div>
+      <div class="footer-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ──────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────
+const QUESTIONS = [
+  {
+    badge: "Q1",
+    text: "友達との旅行での\nあなたの役割は？",
+    options: [
+      { icon: "📸", title: "写真・動画係",  desc: "旅の思い出を美しく残したい。いつも撮影担当になる。", type: "B" },
+      { icon: "🗺️", title: "企画リーダー",  desc: "行き先や企画を考えるのが好き。みんなを引っ張る。",   type: "A" },
+      { icon: "✏️", title: "編集・投稿係",  desc: "写真を加工してSNSにシェア。発信するのが楽しい。",   type: "C" },
+      { icon: "🎉", title: "盛り上げ役",    desc: "みんなのテンションを上げる！場の空気を読む。",       type: "A" },
+    ]
+  },
+  {
+    badge: "Q2",
+    text: "文化祭で一番やりたい\nポジションは？",
+    options: [
+      { icon: "🎭", title: "出演側",    desc: "表舞台で輝きたい。自己表現が得意。",           type: "B" },
+      { icon: "🔧", title: "裏方",      desc: "陰でしっかりサポート。縁の下の力持ち。",       type: "A" },
+      { icon: "📢", title: "広報・SNS", desc: "情報を発信してイベントを盛り上げる。",         type: "C" },
+      { icon: "📋", title: "実行委員",  desc: "全体を統括・管理する。計画を立てるのが好き。", type: "D" },
+    ]
+  },
+  {
+    badge: "Q3",
+    text: "SNSで伸びている動画を\n見た時に思うのは？",
+    options: [
+      { icon: "🎨", title: "自分流にやりたい", desc: "自分ならこう表現する、とすぐアレンジを考える。",   type: "B" },
+      { icon: "🔍", title: "なぜ伸びた？",     desc: "バズった理由を分析したくなる。構造を知りたい。", type: "D" },
+      { icon: "💬", title: "コメントが熱い",   desc: "コメント欄の盛り上がりが気になる。反応を楽しむ。", type: "A" },
+      { icon: "🚀", title: "やってみたい！",   desc: "即マネしたくなる。流行に敏感でいたい。",         type: "C" },
+    ]
+  },
+  {
+    badge: "Q4",
+    text: "一番ワクワクするのは？",
+    options: [
+      { icon: "💡", title: "企画を考える",   desc: "面白いアイデアを生み出す瞬間が最高。",         type: "A" },
+      { icon: "🎨", title: "作品をつくる",   desc: "クリエイティブな制作に没頭する時間が好き。",   type: "B" },
+      { icon: "📈", title: "トレンドを追う", desc: "最新の流行をいち早くキャッチする。",           type: "C" },
+      { icon: "📊", title: "数字を分析する", desc: "データから本質を見つけるのが楽しい。",         type: "D" },
+    ]
+  }
+];
+
+const RESULTS = {
+  A: {
+    emoji: "🎯",
+    type: "バズプロデューサー型",
+    catchcopy: "SNSの空気を読む、仕掛け人",
+    desc: "あなたは企画の仕掛け人タイプ！SNSの空気感を読みながら、「どうすれば面白くなるか」を考えるのが得意です。アイデアと行動力で周りを巻き込み、バズを生み出します。",
+    roles: ["ディレクター", "プロジェクトマネージャー", "アカウントプランナー", "事業開発"],
+    castee: "<strong>Casteeにも多いタイプ！</strong>実際にCasteeで活躍しているディレクター陣に多い傾向です。"
+  },
+  B: {
+    emoji: "✨",
+    type: "世界観クリエイター型",
+    catchcopy: "感性で人を動かす、表現者",
+    desc: "あなたは高感度の表現者タイプ！感性やクリエイティブを活かして、人の心を動かすコンテンツを生み出せます。独自の世界観で、見る人を引き込む力があります。",
+    roles: ["SNS運用", "デザイン", "動画クリエイター", "コンテンツ企画"],
+    castee: "クリエイター志望の方に多い傾向で、<strong>Casteeのクリエイター社員</strong>に多い傾向です。"
+  },
+  C: {
+    emoji: "🌊",
+    type: "トレンドハンター型",
+    catchcopy: "誰より早く、トレンドをキャッチ",
+    desc: "あなたは流行発信型！誰よりも早く新しいものを見つけるのが得意で、マーケティング力が高いです。旬な情報を即座に活かして、インパクトある発信ができます。",
+    roles: ["マーケター", "グロース担当", "新規事業", "営業企画"],
+    castee: "<strong>ビジネス・マーケティングチームに多い傾向</strong>です。数字とトレンドの両方を見られる希少な人材です。"
+  },
+  D: {
+    emoji: "⚡",
+    type: "アルゴリズム分析型",
+    catchcopy: "データで語る、ロジカルな戦略家",
+    desc: "あなたはロジカルタイプ！感覚ではなく数字から物事を捉えます。データドリブンな思考が武器で、SNSのアルゴリズムを読み解き、再現性のある施策を設計できます。",
+    roles: ["PdM", "広告運用", "エンジニア", "研究企画"],
+    castee: "<strong>プロダクトチームに多い傾向</strong>です。Casteeではデータ活用を推進する重要なポジションです。"
+  }
+};
+
+// ──────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────
+let state = {
+  step: 0,           // 0=start, 1=quiz, 2=result
+  nickname: '',
+  selections: {}     // { qIdx: optionIdx }
+};
+
+// ──────────────────────────────────────────
+// RESULT LOGIC
+// ──────────────────────────────────────────
+function calcResult() {
+  const counts = { A: 0, B: 0, C: 0, D: 0 };
+  QUESTIONS.forEach((q, i) => {
+    const sel = state.selections[i];
+    if (sel !== undefined) counts[q.options[sel].type]++;
+  });
+  const q4Type = state.selections[3] !== undefined
+    ? QUESTIONS[3].options[state.selections[3]].type : null;
+  let best = 'A', bestN = -1;
+  for (const [type, n] of Object.entries(counts)) {
+    if (n > bestN || (n === bestN && type === q4Type)) { best = type; bestN = n; }
+  }
+  return best;
+}
+
+// ──────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────
+function render() {
+  const main = document.getElementById('main');
+  if (state.step === 0)      main.innerHTML = renderStart();
+  else if (state.step === 1) main.innerHTML = renderQuiz();
+  else                       main.innerHTML = renderResult();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderStart() {
+  return `
+    <div class="screen start-screen">
+      <span class="start-emoji">📱</span>
+      <h1 class="start-title">30秒でわかる！<br><span class="grad">あなたのSNS適性診断</span></h1>
+      <p class="start-sub">Casteeクリエイターコミュニティでの、<br>あなたの輝き方を見つけましょう！</p>
+      <div class="input-card">
+        <span class="input-label">ニックネームは？</span>
+        <span class="input-hint">任意 ・ 結果画面に表示されます</span>
+        <input
+          class="text-input"
+          type="text"
+          placeholder="例：あべさん"
+          maxlength="20"
+          value="${state.nickname}"
+          oninput="state.nickname = this.value"
+          onkeydown="if(event.key==='Enter') startQuiz()"
+        >
+      </div>
+      <div style="padding-top:14px">
+        <button class="btn-start" onclick="startQuiz()">診断スタート</button>
+      </div>
+    </div>`;
+}
+
+function renderQuiz() {
+  const nick = state.nickname.trim() || 'あなた';
+  return `
+    <div class="screen quiz-screen">
+      <p class="quiz-intro"><span>${nick}</span>さん、4つの質問に答えてください</p>
+      ${QUESTIONS.map((q, i) => renderQuestionBlock(q, i)).join('')}
+      <div class="quiz-spacer"></div>
+    </div>`;
+}
+
+function renderQuestionBlock(q, qIdx) {
+  const sel = state.selections[qIdx];
+  const isAnswered = sel !== undefined;
+  return `
+    <div id="question-${qIdx}" class="question-block">
+      <div class="question-card">
+        <span class="q-badge${isAnswered ? ' answered' : ''}">${isAnswered ? '✓' : q.badge}</span>
+        <p class="q-text">${q.text.replace(/\n/g, '<br>')}</p>
+      </div>
+      <div class="answers-grid">
+        ${q.options.map((opt, i) => `
+          <div class="answer-card${sel === i ? ' selected' : ''}" onclick="selectAnswer(${qIdx}, ${i})">
+            <div class="check-circle"></div>
+            <div class="answer-icon">${opt.icon}</div>
+            <div class="answer-title">${opt.title}</div>
+            <div class="answer-desc">${opt.desc}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderLoading() {
+  return `
+    <div class="screen loading-screen">
+      <div class="loading-content">
+        <span class="loading-emoji">🔍</span>
+        <p class="loading-text">診断中...</p>
+        <p class="loading-sub">あなたのタイプを分析しています</p>
+        <div class="loading-track"><div class="loading-fill"></div></div>
+      </div>
+    </div>`;
+}
+
+function renderResult() {
+  const rKey = calcResult();
+  const r = RESULTS[rKey];
+  const nick = state.nickname.trim() || 'あなた';
+  return `
+    <div class="screen result-screen">
+      <div class="result-hero">
+        <p class="result-nick"><span>${nick}</span>さんの診断結果</p>
+        <span class="result-emoji">${r.emoji}</span>
+        <p class="result-label">あなたは</p>
+        <p class="result-type">${r.type}！</p>
+        <p class="result-catchcopy">${r.catchcopy}</p>
+        <div class="result-divider"></div>
+        <p class="result-desc">${r.desc}</p>
+      </div>
+      <div class="result-section">
+        <p class="section-title">💼 向いているお仕事</p>
+        <div class="role-tags">
+          ${r.roles.map(role => `<span class="role-tag">${role}</span>`).join('')}
+        </div>
+      </div>
+      <div class="result-section">
+        <p class="section-title">🏢 Casteeでのタイプ</p>
+        <p class="castee-note">${r.castee}</p>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" onclick="openStaff()">ブースのスタッフに見せる</button>
+        <button class="btn-ghost" onclick="resetQuiz()">もう一度診断する</button>
+      </div>
+    </div>`;
+}
+
+// ──────────────────────────────────────────
+// ACTIONS
+// ──────────────────────────────────────────
+function startQuiz() {
+  state.step = 1;
+  state.selections = {};
+  render();
+  document.getElementById('sticky-bar').style.display = 'block';
+  document.getElementById('footer').style.display = 'none';
+  updateStickyBtn();
+}
+
+function selectAnswer(qIdx, optIdx) {
+  state.selections[qIdx] = optIdx;
+
+  // カード選択状態を更新
+  const block = document.getElementById(`question-${qIdx}`);
+  block.querySelectorAll('.answer-card').forEach((card, i) => {
+    card.classList.toggle('selected', i === optIdx);
+  });
+
+  // Qバッジをチェックマークに
+  const badge = block.querySelector('.q-badge');
+  if (badge) { badge.textContent = '✓'; badge.classList.add('answered'); }
+
+  // ドット・ボタン更新
+  updateStickyBtn();
+
+  // 次の質問へスクロール（あれば）
+  const nextBlock = document.getElementById(`question-${qIdx + 1}`);
+  if (nextBlock) {
+    setTimeout(() => scrollToBlock(`question-${qIdx + 1}`), 350);
+  }
+}
+
+function updateStickyBtn() {
+  const answered = Object.keys(state.selections).length;
+  const allDone  = answered === QUESTIONS.length;
+
+  // ドット更新
+  QUESTIONS.forEach((_, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    if (dot) dot.classList.toggle('done', state.selections[i] !== undefined);
+  });
+
+  // ボタン更新
+  const btn = document.getElementById('result-btn');
+  if (btn) {
+    btn.classList.toggle('active',   allDone);
+    btn.classList.toggle('inactive', !allDone);
+  }
+}
+
+function goToResult() {
+  const allDone = Object.keys(state.selections).length === QUESTIONS.length;
+  if (!allDone) {
+    // 最初の未回答質問へスクロール＆フラッシュ
+    const firstUnanswered = QUESTIONS.findIndex((_, i) => state.selections[i] === undefined);
+    scrollToBlock(`question-${firstUnanswered}`);
+    setTimeout(() => flashBlock(firstUnanswered), 400);
+    return;
+  }
+  // ローディング → 結果
+  document.getElementById('sticky-bar').style.display = 'none';
+  document.getElementById('main').innerHTML = renderLoading();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    state.step = 2;
+    document.getElementById('footer').style.display = '';
+    render();
+    launchConfetti();
+  }, 1500);
+}
+
+function resetQuiz() {
+  state = { step: 0, nickname: state.nickname, selections: {} };
+  document.getElementById('sticky-bar').style.display = 'none';
+  document.getElementById('footer').style.display = '';
+  render();
+}
+
+// ──────────────────────────────────────────
+// UTILITIES
+// ──────────────────────────────────────────
+function scrollToBlock(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const headerH = document.querySelector('.header')?.offsetHeight || 58;
+  const top = el.getBoundingClientRect().top + window.scrollY - headerH - 12;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+}
+
+function flashBlock(qIdx) {
+  const card = document.querySelector(`#question-${qIdx} .question-card`);
+  if (!card) return;
+  card.classList.add('flash');
+  setTimeout(() => card.classList.remove('flash'), 800);
+}
+
+function launchConfetti() {
+  const pieces = ['🎊','✨','🎉','⭐','💫','🌟','🎈'];
+  for (let i = 0; i < 24; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+      el.style.cssText = `left:${Math.random()*100}vw;top:-30px;animation-duration:${1.5+Math.random()*2}s;font-size:${14+Math.random()*16}px;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 80);
+  }
+}
+
+// ──────────────────────────────────────────
+// STAFF MODAL
+// ──────────────────────────────────────────
+function openStaff() {
+  const rKey = calcResult();
+  const r = RESULTS[rKey];
+  const nick = state.nickname.trim() || 'あなた';
+  const el = document.createElement('div');
+  el.id = 'staff-root';
+  el.innerHTML = `
+    <div class="staff-overlay" id="staff-overlay" onclick="closeStaff(event)">
+      <div class="staff-modal">
+        <span class="staff-modal-emoji">${r.emoji}</span>
+        <p class="staff-modal-type">${r.type}</p>
+        <p class="staff-modal-label">${nick}さんの診断結果</p>
+        <p class="staff-modal-note">スタッフの方へ<br>この画面をご確認ください</p>
+        <button class="btn-primary" onclick="closeStaff(null)" style="max-width:200px;margin:0 auto;display:block;padding:13px;">閉じる</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+function closeStaff(e) {
+  if (e && e.target.id !== 'staff-overlay') return;
+  document.getElementById('staff-root')?.remove();
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>
