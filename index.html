@@ -213,6 +213,11 @@
       25%, 65% { box-shadow: 0 0 0 3px rgba(99,102,241,0.35), var(--shadow-sm); }
     }
 
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .q-badge {
       display: inline-flex;
       align-items: center;
@@ -223,8 +228,8 @@
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 6px;
-      margin-bottom: 8px;
       min-width: 36px;
+      flex-shrink: 0;
       transition: background 0.25s, color 0.25s;
     }
     .q-badge.answered {
@@ -233,9 +238,9 @@
     }
 
     .q-text {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
-      line-height: 1.45;
+      line-height: 1.4;
       color: var(--text-dark);
     }
 
@@ -314,22 +319,27 @@
       z-index: 150;
     }
 
-    .q-dots {
+    .q-segments {
       display: flex;
-      justify-content: center;
-      gap: 7px;
+      gap: 6px;
       margin-bottom: 10px;
     }
-    .q-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .q-segment {
+      flex: 1;
+      height: 32px;
+      border-radius: 8px;
       background: var(--border);
-      transition: background 0.25s, transform 0.25s;
+      color: var(--text-light);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, color 0.3s;
     }
-    .q-dot.done {
-      background: var(--primary);
-      transform: scale(1.25);
+    .q-segment.done {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      color: white;
     }
 
     .btn-result {
@@ -572,11 +582,11 @@
 
   <!-- Sticky CTA (quiz時のみ表示) -->
   <div id="sticky-bar" class="sticky-bar" style="display:none">
-    <div class="q-dots">
-      <span class="q-dot" id="dot-0"></span>
-      <span class="q-dot" id="dot-1"></span>
-      <span class="q-dot" id="dot-2"></span>
-      <span class="q-dot" id="dot-3"></span>
+    <div class="q-segments">
+      <div class="q-segment" id="seg-0">Q1</div>
+      <div class="q-segment" id="seg-1">Q2</div>
+      <div class="q-segment" id="seg-2">Q3</div>
+      <div class="q-segment" id="seg-3">Q4</div>
     </div>
     <button class="btn-result inactive" id="result-btn" onclick="goToResult()">
       診断結果を見る
@@ -749,8 +759,10 @@ function renderQuestionBlock(q, qIdx) {
   return `
     <div id="question-${qIdx}" class="question-block">
       <div class="question-card">
-        <span class="q-badge${isAnswered ? ' answered' : ''}">${isAnswered ? '✓' : q.badge}</span>
-        <p class="q-text">${q.text.replace(/\n/g, '<br>')}</p>
+        <div class="question-header">
+          <span class="q-badge${isAnswered ? ' answered' : ''}">${isAnswered ? '✓' : q.badge}</span>
+          <p class="q-text">${q.text.replace(/\n/g, '')}</p>
+        </div>
       </div>
       <div class="answers-grid">
         ${q.options.map((opt, i) => `
@@ -847,10 +859,14 @@ function updateStickyBtn() {
   const answered = Object.keys(state.selections).length;
   const allDone  = answered === QUESTIONS.length;
 
-  // ドット更新
+  // セグメント更新
   QUESTIONS.forEach((_, i) => {
-    const dot = document.getElementById(`dot-${i}`);
-    if (dot) dot.classList.toggle('done', state.selections[i] !== undefined);
+    const seg = document.getElementById(`seg-${i}`);
+    if (seg) {
+      const isDone = state.selections[i] !== undefined;
+      seg.classList.toggle('done', isDone);
+      seg.textContent = isDone ? '✓' : `Q${i + 1}`;
+    }
   });
 
   // ボタン更新
