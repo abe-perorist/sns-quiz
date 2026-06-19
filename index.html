@@ -68,20 +68,6 @@
       letter-spacing: -0.5px;
     }
 
-    .logo-mark {
-      width: 30px;
-      height: 30px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 15px;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
     .header-subtitle {
       font-size: 11px;
       font-weight: 500;
@@ -547,24 +533,18 @@
     /* ── Footer ── */
     .footer {
       text-align: center;
-      padding: 22px 20px;
+      padding: 20px;
       border-top: 1px solid rgba(99,102,241,0.07);
     }
-    .footer-text { font-size: 11.5px; color: var(--text-light); margin-bottom: 12px; line-height: 1.6; }
-    .footer-icons { display: flex; justify-content: center; gap: 18px; }
-    .footer-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--primary-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    .footer-link {
+      font-size: 13px;
+      font-weight: 700;
       color: var(--primary);
-      transition: background 0.15s;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.15s;
     }
-    .footer-icon:hover { background: #DDD6FE; }
+    .footer-link:hover { opacity: 1; }
 
     /* ── Confetti ── */
     .confetti-piece {
@@ -583,7 +563,6 @@
 <div id="app">
   <header class="header">
     <div class="logo">
-      <div class="logo-mark">C</div>
       Castee
     </div>
     <div class="header-subtitle">SNS適性診断<br>by Castee</div>
@@ -605,26 +584,7 @@
   </div>
 
   <footer class="footer" id="footer">
-    <p class="footer-text">Casteeで、あなたに合うクリエイター体験を見つけよう！</p>
-    <div class="footer-icons">
-      <div class="footer-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-        </svg>
-      </div>
-      <div class="footer-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-        </svg>
-      </div>
-      <div class="footer-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-        </svg>
-      </div>
-    </div>
+    <a class="footer-link" href="https://castee.com/" target="_blank" rel="noopener noreferrer">castee.com</a>
   </footer>
 </div>
 
@@ -753,7 +713,7 @@ function renderStart() {
     <div class="screen start-screen">
       <span class="start-emoji">📱</span>
       <h1 class="start-title">30秒でわかる！<br><span class="grad">あなたのSNS適性診断</span></h1>
-      <p class="start-sub">Casteeクリエイターコミュニティでの、<br>あなたの輝き方を見つけましょう！</p>
+      <p class="start-sub">Casteeでのあなたの輝き方を見つけましょう！</p>
       <div class="input-card">
         <span class="input-label">ニックネームは？</span>
         <span class="input-hint">任意 ・ 結果画面に表示されます</span>
